@@ -15,7 +15,7 @@ export class ZodValidationPipePipe implements PipeTransform {
 
     }catch(error){
         console.log(error);
-        this.logger.error('Validation failed:', error.errors);
+        this.logger.error('Validation failed:', error);
     }
     return value;
   }
