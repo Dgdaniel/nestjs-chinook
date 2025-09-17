@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Artist {
+  id     Int     @id @default(autoincrement()) @map("artist_id")
+  name   String
+  albums Album[] // Opposite relation field
+
+  @@map("artist")
+}
+
+model Album {
+  id       Int    @id @default(autoincrement()) @map("album_id")
+  title    String
+  Artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  artistId Int    @map("artist_id")
+  tracks Track[]
+
+  @@map("album")
+}
+
+model Genre {
+  id    Int     @id @default(autoincrement()) @map("genre_id")
+  name  String
+  tracks Track[]
+
+  @@map("genre")
+}
+
+model MediatType {
+  id   Int    @id @default(autoincrement()) @map("media_type_id")
+  name String
+  tracks Track[]
+
+  @@map("media_type")
+}
+
+model Playlist {
+  id   Int    @id @default(autoincrement()) @map("playlist_id")
+  name String
+
+  @@map("playlist")
+}
+
+model Track {
+  id           Int     @id @default(autoincrement()) @map("track_id")
+  composer     String?
+  milliseconds BigInt
+  bytes        Int
+  unitPrice    Int     @map("unit_price")
+
+  genreId Int   @map("genre_id")
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  albumId Int @map("album_id")
+  album Album @relation(fields: [albumId], references: [id], onUpdate: Cascade)
+
+  mediatTypeId Int @map("media_type_id")
+  mediaType MediatType @relation(fields: [mediatTypeId], references: [id], onUpdate: Cascade)
+
+  @@map("track")
+}
