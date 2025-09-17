@@ -22,34 +22,34 @@ model Artist {
 }
 
 model Album {
-  id       Int    @id @default(autoincrement()) @map("album_id")
+  id       Int     @id @default(autoincrement()) @map("album_id")
   title    String
-  Artist   Artist @relation(fields: [artistId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  artistId Int    @map("artist_id")
-  tracks Track[]
+  Artist   Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  artistId Int     @map("artist_id")
+  tracks   Track[]
 
   @@map("album")
 }
 
 model Genre {
-  id    Int     @id @default(autoincrement()) @map("genre_id")
-  name  String
+  id     Int     @id @default(autoincrement()) @map("genre_id")
+  name   String
   tracks Track[]
 
   @@map("genre")
 }
 
 model MediatType {
-  id   Int    @id @default(autoincrement()) @map("media_type_id")
-  name String
+  id     Int     @id @default(autoincrement()) @map("media_type_id")
+  name   String
   tracks Track[]
 
   @@map("media_type")
 }
 
 model Playlist {
-  id   Int    @id @default(autoincrement()) @map("playlist_id")
-  name String
+  id             Int             @id @default(autoincrement()) @map("playlist_id")
+  name           String
   playlistTracks PlaylistTrack[]
 
   @@map("playlist")
@@ -65,23 +65,57 @@ model Track {
   genreId Int   @map("genre_id")
   genre   Genre @relation(fields: [genreId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  albumId Int @map("album_id")
-  album Album @relation(fields: [albumId], references: [id], onUpdate: Cascade)
+  albumId Int   @map("album_id")
+  album   Album @relation(fields: [albumId], references: [id], onUpdate: Cascade)
 
-  mediatTypeId Int @map("media_type_id")
-  mediaType MediatType @relation(fields: [mediatTypeId], references: [id], onUpdate: Cascade)
-  
+  mediatTypeId Int        @map("media_type_id")
+  mediaType    MediatType @relation(fields: [mediatTypeId], references: [id], onUpdate: Cascade)
+
   playlistTracks PlaylistTrack[]
 
   @@map("track")
 }
 
 model PlaylistTrack {
-  playlistId Int @map("playlist_id")
-  trackId Int @map("track_id")
-  track Track @relation(fields: [trackId], references: [id]) 
-  playlist Playlist @relation(fields: [playlistId], references: [id])
+  playlistId Int      @map("playlist_id")
+  trackId    Int      @map("track_id")
+  track      Track    @relation(fields: [trackId], references: [id])
+  playlist   Playlist @relation(fields: [playlistId], references: [id])
+
   @@id([playlistId, trackId])
   @@map("playlist_track")
 }
 
+model Employee {
+  id         Int        @id @default(autoincrement()) @map("employee_id")
+  lastName   String     @map("last_name")
+  firstName  String     @map("first_name")
+  title      String?
+  reportsTo  Int?       @map("reports_to")
+  employee   Employee?  @relation("EmployeeToEmployee", fields: [reportsTo], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  employees  Employee[] @relation("EmployeeToEmployee")
+  birthDate  DateTime?  @map("birth_date")
+  hireDate   DateTime?  @map("hire_date")
+  address    String?
+  city       String?
+  state      String?
+  country    String?
+  postalCode String?    @map("postal_code")
+  phone      String?
+  fax        String?
+  email      String?
+
+  @@map("employee")
+}
+
+model Invoice {
+  id                Int      @id @default(autoincrement()) @map("invoice_id")
+  customerId        Int      @map("customer_id")
+  invoiceDate       DateTime @map("invoice_date")
+  billingAddress    String?  @map("billing_address")
+  billingCity       String?  @map("billing_city")
+  billingState      String?  @map("billing_state")
+  billingCountry    String?  @map("billing_country")
+  billingPostalCode String?  @map("billing_postal_code")
+  total             Float
+}
