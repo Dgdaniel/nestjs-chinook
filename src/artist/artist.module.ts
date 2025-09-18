@@ -13,6 +13,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
         PrismaService,
         ...artistProvider
     ],
+     exports: [
+        ArtistService,
+        ...artistProvider
+    ]
 })
 export class ArtistModule {
     
