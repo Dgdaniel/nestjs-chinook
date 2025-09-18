@@ -15,12 +15,21 @@ export class ArtistService {
         private prisma: PrismaService
     ) {}
 
+    async create(createArtistDto: CreateArtistDto): Promise<Artist> {
+        const createdArtist = new this.artistModel(createArtistDto);
+        return createdArtist.save();
+    }
+
     async findAll(): Promise<Artist[]> {
         return  await this.artistModel.find().exec();
     }
 
     async  findOne(id: string): Promise<Artist | null> {
         return await this.artistModel.findById(id).exec();
+    }
+
+    async update(updateArtistDto: UpdateArtistDto): Promise<Artist | null> {
+        return await this.artistModel.findByIdAndUpdate(updateArtistDto.id, updateArtistDto, { new: true }).exec();
     }
 
     async findAllPrisma(): Promise<ArtistPrisma[] | []> {
@@ -42,13 +51,6 @@ export class ArtistService {
     async deletePrisma(id: number): Promise<ArtistPrisma> {
         return await this.prisma.artist.delete({
             where: { id }
-        });
-    }
-
-    async updatePrisma(data: UpdateArtistDto): Promise<ArtistPrisma> {
-        return await this.prisma.artist.update({
-            where: { id: data.id },
-            data
         });
     }
 }

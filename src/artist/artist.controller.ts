@@ -1,7 +1,8 @@
-import { Controller, Get, Patch, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UsePipes } from '@nestjs/common';
 import { ArtistService } from './artist.service';
-import { UpdateArtistDto} from './dto/updateArtist.dto';
 import { ZodValidationException, ZodValidationPipe } from 'nestjs-zod';
+import * as dto from './dto/createArtist.dto';
+import * as updateArtistDto from './dto/updateArtist.dto';
 
 @Controller('artist')
 export class ArtistController {
@@ -14,6 +15,24 @@ export class ArtistController {
     async findAll() {
         return this.artistService.findAll();
     }
+
+    @Post()
+    @UsePipes(new ZodValidationPipe(dto.CreateArtistDtoSchema))
+    async create(@Body() data: dto.CreateArtistDto) {
+        return await this.artistService.create(data);
+    }
+
+    @Get(':id')
+    async findOne(@Param('id') id: string) {
+        return await this.artistService.findOne(id);
+    }
+
+    @Patch()
+    @UsePipes(new ZodValidationPipe(updateArtistDto.UpdateArtistDtoSchema))
+    async update(@Body() data: updateArtistDto.UpdateArtistDto) {
+        return await this.artistService.update(data);
+    }
+    
 
     @Get('prisma')
     async findAllPrisma() {
@@ -31,7 +50,4 @@ export class ArtistController {
     async deletePrisma(id: number) {
         return await this.artistService.deletePrisma(id);
     }
-
-
-
 }
