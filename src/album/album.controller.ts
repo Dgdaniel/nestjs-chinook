@@ -18,4 +18,8 @@ export class AlbumController {
     async findAll(){
         return await this.albumService.findAll()
     }
+
+    async sync(){
+        
+    }
 }

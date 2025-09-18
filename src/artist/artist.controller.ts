@@ -22,6 +22,16 @@ export class ArtistController {
         return await this.artistService.create(data);
     }
 
+    @Get('sync') 
+    async synchronise() {
+        return await this.artistService.sync();
+    }
+
+    @Get('prisma')
+    async findAllPrisma() {
+        return await this.artistService.findAllPrisma();
+    }
+
     @Get(':id')
     async findOne(@Param('id') id: string) {
         return await this.artistService.findOne(id);
@@ -33,11 +43,6 @@ export class ArtistController {
         return await this.artistService.update(data);
     }
     
-
-    @Get('prisma')
-    async findAllPrisma() {
-        return await this.artistService.findAllPrisma();
-    }
 
     async findOnePrisma(id: number) {
         return await this.artistService.findOnePrisma(id);

@@ -55,4 +55,33 @@ export class ArtistService {
             where: { id }
         });
     }
+
+     async sync(): Promise<void> {
+        try {
+            // Get all artists from Prisma
+            const allPrismaArtists = await this.prisma.artist.findMany();
+            
+            if (!allPrismaArtists.length) {
+                throw new Error('No artists found in Prisma database');
+            }
+
+            // Use Promise.all to handle all creations concurrently
+            await Promise.all(
+                allPrismaArtists.map(async (artist) => {
+                    try {
+                        await this.artistModel.create({
+                            name: artist.name,
+                        });
+                    } catch (error) {
+                        console.error(`Failed to sync artist ${artist.name}:`, error);
+                    }
+                })
+            );
+
+            console.log(`Successfully synced ${allPrismaArtists.length} artists`);
+        } catch (error) {
+            console.error('Sync failed:', error);
+            throw new Error(`Failed to sync artists: ${error}`);
+        }
+    }
 }
