@@ -35,6 +35,13 @@ export const TrackSchema = new mongoose.Schema( {
         type: Date,
         default: Date.now,
     },
+    playlists: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Playlist',
+        }
+    ],
+
 })
 
 

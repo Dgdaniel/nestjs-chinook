@@ -5,4 +5,8 @@ export const MediaTypeSchema = new mongoose.Schema({
         type: String,
         required: true
     }
+},  {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 })
