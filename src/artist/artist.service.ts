@@ -25,7 +25,9 @@ export class ArtistService {
     }
 
     async  findOne(id: string): Promise<Artist | null> {
-        return await this.artistModel.findById(id).exec();
+        return await this.artistModel.findById(id)
+        .populate('albums') // Assuming 'albums' is the field in Artist schema that references Album documents
+        .exec();
     }
 
     async update(updateArtistDto: UpdateArtistDto): Promise<Artist | null> {

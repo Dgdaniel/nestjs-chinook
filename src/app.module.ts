@@ -5,6 +5,7 @@ import { ArtistModule } from './artist/artist.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { PrismaService } from './prisma/prisma.service';
+import { AlbumModule } from './album/album.module';
 
 @Module({
     imports: [
@@ -13,7 +14,8 @@ import { PrismaService } from './prisma/prisma.service';
         envFilePath: '.env',
       }),
        ArtistModule,
-       DatabaseModule
+       DatabaseModule,
+       AlbumModule
       ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
