@@ -19,7 +19,8 @@ export class AlbumController {
         return await this.albumService.findAll()
     }
 
+    @Get('sync')
     async sync(){
-        
+        this.albumService.sync();
     }
 }

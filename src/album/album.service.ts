@@ -12,7 +12,7 @@ export class AlbumService {
         @Inject(ALBUM_MODEL) private readonly albumModel: Model<Album>,
         @Inject(ARTIST_MODEL) private readonly artistModel: Model<Artist>,
         private prisma: PrismaService
-    ) {}
+    ) { }
 
     logger = new Logger("AlbumService")
 
@@ -20,7 +20,7 @@ export class AlbumService {
         this.logger.log("data ", data)
         // First, check if artist exists
         const artist = await this.artistModel.findById(data.artistId).exec();
-        
+
         if (!artist) {
             this.logger.error(`Artist with ID ${data.artistId} not found`)
             throw new NotFoundException(`Artist with ID ${data.artistId} not found`);
@@ -32,7 +32,7 @@ export class AlbumService {
                 title: data.title,
                 artist: data.artistId
             });
-            
+
             const savedAlbum = await newAlbum.save();
 
             // Populate the artist field after saving
@@ -72,6 +72,44 @@ export class AlbumService {
         } catch (error) {
             this.logger.error('Failed to fetch albums:', error);
             throw new BadRequestException('Failed to fetch albums');
+        }
+    }
+
+    async sync() {
+        try {
+            let allPrisma = await this.prisma.album.findMany({
+                orderBy: {
+                    title: 'asc'
+                },
+                include: {
+                    Artist: true
+                }
+            });
+
+            let allArtistMongo = await this.artistModel.find().sort({ title: 1 }).exec();
+            if (allArtistMongo.length === 0) {
+                // Utiliser for...of au lieu de forEach pour pouvoir utiliser await
+                for (const el of allArtistMongo) {
+                    for (const da of allPrisma) {
+                        if (el.toJSON().name === da.Artist.name) {
+                            this.logger.log("artist name ", da.Artist.name);
+                            this.logger.log({ da });
+
+                            let daniw: CreateAlbumDto = {
+                                'artistId': el.id,
+                                'title': da.title
+                            };
+
+                            await this.create(daniw);
+                        }
+                    }
+                }
+            }
+
+
+        } catch (error) {
+            this.logger.error('Error in sync method:', error);
+            throw error;
         }
     }
 }
