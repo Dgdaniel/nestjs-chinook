@@ -1,4 +1,10 @@
-import { Injectable, Inject, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { Model } from 'mongoose';
 import { ALBUM_MODEL, ARTIST_MODEL } from 'src/constants/object.constants';
 import { PrismaService } from 'src/prisma/prisma.service';

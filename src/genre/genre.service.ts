@@ -4,6 +4,8 @@ import { GENRE_MODEL } from '../constants/object.constants';
 import { Model } from 'mongoose';
 import { Genre } from './interface/genre.interface';
 import { CreateGenreDto } from './dto/createGenre.dto';
+import { UpdateGenreDto } from './dto/updateGenre.dto';
+import { Genre as GenrePrisma } from '@prisma/client';
 
 @Injectable()
 export class GenreService {
@@ -12,7 +14,7 @@ export class GenreService {
   constructor(
     @Inject(GENRE_MODEL) private readonly genreModel: Model<Genre>,
     private prisma: PrismaService,
-  ) {}
+  ) { }
 
   async sync() {
     const allGenrePrisma = await this.prisma.genre.findMany();
@@ -61,5 +63,79 @@ export class GenreService {
         name: 'asc'
       })
       .exec();
+  }
+
+  async updateGenre(genre: UpdateGenreDto): Promise<Genre | null> {
+    return this.genreModel
+      .findByIdAndUpdate({ '_id': genre._id }, genre, { new: true })
+      .exec();
+  }
+
+  async deleteGenre(id: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      const result = await this.genreModel.deleteOne({ _id: id }).exec();
+
+      if (result.deletedCount === 0) {
+        return {
+          success: false,
+          message: 'Genre not found'
+        };
+      }
+
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to delete genre with id ${id}:`, errorMessage);
+
+      return {
+        success: false,
+        message: errorMessage
+      };
+    }
+  }
+
+
+
+  // prisma
+  async createPrisma(genre: CreateGenreDto): Promise<GenrePrisma | null> {
+    return this.prisma.genre.create({
+      data: genre,
+    })
+  }
+
+  async findAllPrisma(): Promise<GenrePrisma[]> {
+    return this.prisma.genre.findMany();
+  }
+
+  async findOnePrisma(id: number): Promise<GenrePrisma | null> {
+    return this.prisma.genre.findUnique({
+      where: {
+        id
+      }
+    });
+  }
+
+  async updatePrisma(id: number, genre: CreateGenreDto): Promise<GenrePrisma> {
+    return this.prisma.genre.update({
+      where: {
+        id
+      },
+      data: genre
+    })
+  }
+
+  async deletePrisma(id: number): Promise<{ success: boolean; message?: string }> {
+    try {
+      await this.prisma.genre.delete({
+        where: { id }
+      });
+      return { success: true };
+    } catch (error) {
+      this.logger.error(`Failed to delete genre with id ${id}:`, error);
+      return {
+        success: false,
+        message: `Failed to delete genre with id ${id}`
+      };
+    }
   }
 }
