@@ -1,8 +1,6 @@
-
 import { Types } from 'mongoose';
-import { z } from 'zod'
-export const updateAlbumDto = z.
-    object({
+import { z } from 'zod';
+export const updateAlbumDto = z.object({
         id: z.string()
             .refine((val) => Types.ObjectId.isValid(val), {
                 message: "Invalid ObjectId format"

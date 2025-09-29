@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const CreateAlbumDtoSchema = z.object({
   title: z.string()
-    .min(1, { message: "Title is required" })
+    .min(3, { message: "Title is required" })
     .trim()
     .refine((val) => val.length > 0, {
       message: "Title cannot be empty or just whitespace"
