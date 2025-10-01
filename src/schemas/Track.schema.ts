@@ -1,4 +1,10 @@
 import mongoose from "mongoose"
+import {
+  ALBUM_MODEL,
+  GENRE_MODEL,
+  MEDIA_TYPE_MODEL,
+  PLAYLIST_MODEL,
+} from '../constants/object.constants';
 export const TrackSchema = new mongoose.Schema( {
     name: {
         type: String,
@@ -20,16 +26,16 @@ export const TrackSchema = new mongoose.Schema( {
     },
     mediaType: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'MediaType',
+        ref: MEDIA_TYPE_MODEL,
         required: true,
     },
     album: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Album',
+        ref: ALBUM_MODEL,
     },
     genre: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Genre',
+        ref: GENRE_MODEL,
     },
     createdAt: {
         type: Date,
@@ -38,10 +44,14 @@ export const TrackSchema = new mongoose.Schema( {
     playlists: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Playlist',
+            ref: PLAYLIST_MODEL,
         }
     ],
 
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
 })
 
 

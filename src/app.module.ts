@@ -8,6 +8,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { AlbumModule } from './album/album.module';
 import { GenreModule } from './genre/genre.module';
 import { MediaTypeModule } from './media-type/media-type.module';
+import { PlaylistModule } from './playlist/playlist.module';
 
 @Module({
     imports: [
@@ -19,7 +20,8 @@ import { MediaTypeModule } from './media-type/media-type.module';
        DatabaseModule,
        AlbumModule,
        GenreModule,
-       MediaTypeModule
+       MediaTypeModule,
+       PlaylistModule
       ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

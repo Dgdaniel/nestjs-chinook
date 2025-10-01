@@ -3,8 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { GENRE_MODEL } from '../constants/object.constants';
 import { Model } from 'mongoose';
 import { Genre } from './interface/genre.interface';
-import { CreateGenreDto } from './dto/createGenre.dto';
-import { UpdateGenreDto } from './dto/updateGenre.dto';
+import * as dto  from './dto/createGenre.dto';
+import * as updateDto  from './dto/updateGenre.dto';
 import { Genre as GenrePrisma } from '@prisma/client';
 
 @Injectable()
@@ -46,7 +46,7 @@ export class GenreService {
     );
   }
 
-  async createGenre(genre: CreateGenreDto): Promise<Genre> {
+  async createGenre(genre: dto.CreateGenreDto): Promise<Genre> {
     return this.genreModel.create(genre);
   }
 
@@ -66,7 +66,7 @@ export class GenreService {
       .exec();
   }
 
-  async updateGenre(id: string, genre: UpdateGenreDto): Promise<Genre | null> {
+  async updateGenre(genre: updateDto.UpdateGenreDto): Promise<Genre | null> {
     return this.genreModel
       .findByIdAndUpdate({ _id: genre._id }, genre, { new: true })
       .exec();
@@ -99,7 +99,7 @@ export class GenreService {
   }
 
   // prisma
-  async createPrisma(genre: CreateGenreDto): Promise<GenrePrisma> {
+  async createPrisma(genre: dto.CreateGenreDto): Promise<GenrePrisma> {
     return this.prisma.genre.create({
       data: {
         name: genre.name,
@@ -120,7 +120,7 @@ export class GenreService {
     });
   }
 
-  async updatePrisma(id: number, genre: CreateGenreDto): Promise<GenrePrisma> {
+  async updatePrisma(id: number, genre: dto.CreateGenreDto): Promise<GenrePrisma> {
     return this.prisma.genre.update({
       where: {
         id,

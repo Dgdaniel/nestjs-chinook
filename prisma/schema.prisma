@@ -44,7 +44,7 @@ model MediaType {
   @@map("media_type")
 }
 
-model Playlist {
+model PlaylistProvider {
   id             Int             @id @default(autoincrement()) @map("playlist_id")
   name           String?         @db.VarChar(120)
   playlistTracks PlaylistTrack[]

@@ -79,7 +79,7 @@ export class GenreController {
     @Param('id') id: string,
     @Body() dto: updateGenreDto.UpdateGenreDto,
   ): Promise<Genre | null> {
-    return this.genreService.updateGenre(id, dto);
+    return this.genreService.updateGenre(dto);
   }
 
   @Delete(':id')

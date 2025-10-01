@@ -6,12 +6,12 @@ export const PlaylistSchema = new Schema({
         type: String,
         required: true,
     },
-    tracks: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Track',
-    }],
     createdAt: {
         type: Date,
         default: Date.now,
     },
+},{
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
 })

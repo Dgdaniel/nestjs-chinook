@@ -3,7 +3,7 @@ import * as zod from 'zod';
 
 
 @Injectable()
-export class ZodValidationPipePipe implements PipeTransform {
+export class ZodValidationPipe implements PipeTransform {
 
   constructor(private schema: zod.ZodSchema) {}
 
