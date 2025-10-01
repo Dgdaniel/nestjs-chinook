@@ -1,7 +1,8 @@
 import { Types } from 'mongoose';
 import { z } from 'zod';
+import { CreateAlbumDto } from '../../album/dto/createAlbum.dto';
 
-export const updateMediaTypeDto = z
+export const UpdateMediaTypeDtoSchema = z
   .object({
     id:  z.string()
       .refine((val) => Types.ObjectId.isValid(val), {
@@ -16,3 +17,5 @@ export const updateMediaTypeDto = z
       }),
   })
   .required();
+
+export type UpdateMediaTypeDto = z.infer<typeof UpdateMediaTypeDtoSchema>
