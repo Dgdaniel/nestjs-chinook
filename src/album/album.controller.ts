@@ -21,6 +21,6 @@ export class AlbumController {
 
     @Get('sync')
     async sync(){
-        this.albumService.sync();
+        await this.albumService.sync();
     }
 }

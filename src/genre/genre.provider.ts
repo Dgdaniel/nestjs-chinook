@@ -1,4 +1,3 @@
-import { GenreService } from './genre.service';
 import { Connection } from "mongoose";
 import {
   DATABASE_CONNECTION,

@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Schéma Prisma Chinook Corrigé
 
 generator client {
   provider = "prisma-client-js"
@@ -15,33 +11,34 @@ datasource db {
 
 model Artist {
   id     Int     @id @default(autoincrement()) @map("artist_id")
-  name   String
-  albums Album[] // Opposite relation field
+  name   String? @db.VarChar(120)
+  albums Album[]
 
   @@map("artist")
 }
 
 model Album {
   id       Int     @id @default(autoincrement()) @map("album_id")
-  title    String
-  Artist   Artist  @relation(fields: [artistId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  title    String  @db.VarChar(160)
   artistId Int     @map("artist_id")
+  artist   Artist  @relation(fields: [artistId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   tracks   Track[]
 
+  @@index([artistId])
   @@map("album")
 }
 
 model Genre {
   id     Int     @id @default(autoincrement()) @map("genre_id")
-  name   String
+  name   String? @db.VarChar(120)
   tracks Track[]
 
   @@map("genre")
 }
 
-model MediatType {
+model MediaType {
   id     Int     @id @default(autoincrement()) @map("media_type_id")
-  name   String
+  name   String? @db.VarChar(120)
   tracks Track[]
 
   @@map("media_type")
@@ -49,110 +46,118 @@ model MediatType {
 
 model Playlist {
   id             Int             @id @default(autoincrement()) @map("playlist_id")
-  name           String
+  name           String?         @db.VarChar(120)
   playlistTracks PlaylistTrack[]
 
   @@map("playlist")
 }
 
 model Track {
-  id           Int     @id @default(autoincrement()) @map("track_id")
-  composer     String?
-  milliseconds BigInt
-  bytes        Int
-  unitPrice    Int     @map("unit_price")
-
-  genreId Int   @map("genre_id")
-  genre   Genre @relation(fields: [genreId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  albumId Int   @map("album_id")
-  album   Album @relation(fields: [albumId], references: [id], onUpdate: Cascade)
-
-  mediatTypeId Int        @map("media_type_id")
-  mediaType    MediatType @relation(fields: [mediatTypeId], references: [id], onUpdate: Cascade)
-
-  playlistTracks PlaylistTrack[]
+  id             Int             @id @default(autoincrement()) @map("track_id")
+  name           String          @db.VarChar(200)
+  albumId        Int?            @map("album_id")
+  mediaTypeId    Int             @map("media_type_id")
+  genreId        Int?            @map("genre_id")
+  composer       String?         @db.VarChar(220)
+  milliseconds   Int
+  bytes          Int?
+  unitPrice      Decimal         @map("unit_price") @db.Decimal(10, 2)
   invoiceLines   InvoiceLine[]
+  playlistTracks PlaylistTrack[]
+  album          Album?          @relation(fields: [albumId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  genre          Genre?          @relation(fields: [genreId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  mediaType      MediaType       @relation(fields: [mediaTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  @@index([albumId])
+  @@index([genreId])
+  @@index([mediaTypeId])
   @@map("track")
 }
 
 model PlaylistTrack {
   playlistId Int      @map("playlist_id")
   trackId    Int      @map("track_id")
-  track      Track    @relation(fields: [trackId], references: [id])
-  playlist   Playlist @relation(fields: [playlistId], references: [id])
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  track      Track    @relation(fields: [trackId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([playlistId, trackId])
+  @@index([playlistId])
+  @@index([trackId])
   @@map("playlist_track")
 }
 
 model Employee {
-  id         Int        @id @default(autoincrement()) @map("employee_id")
-  lastName   String     @map("last_name")
-  firstName  String     @map("first_name")
-  title      String?
-  reportsTo  Int?       @map("reports_to")
-  employee   Employee?  @relation("EmployeeToEmployee", fields: [reportsTo], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  employees  Employee[] @relation("EmployeeToEmployee")
-  birthDate  DateTime?  @map("birth_date")
-  hireDate   DateTime?  @map("hire_date")
-  address    String?
-  city       String?
-  state      String?
-  country    String?
-  postalCode String?    @map("postal_code")
-  phone      String?
-  fax        String?
-  email      String?
+  id           Int        @id @default(autoincrement()) @map("employee_id")
+  lastName     String     @map("last_name") @db.VarChar(20)
+  firstName    String     @map("first_name") @db.VarChar(20)
+  title        String?    @db.VarChar(30)
+  reportsTo    Int?       @map("reports_to")
+  birthDate    DateTime?  @map("birth_date") @db.Timestamp(6)
+  hireDate     DateTime?  @map("hire_date") @db.Timestamp(6)
+  address      String?    @db.VarChar(70)
+  city         String?    @db.VarChar(40)
+  state        String?    @db.VarChar(40)
+  country      String?    @db.VarChar(40)
+  postalCode   String?    @map("postal_code") @db.VarChar(10)
+  phone        String?    @db.VarChar(24)
+  fax          String?    @db.VarChar(24)
+  email        String?    @db.VarChar(60)
+  customers    Customer[]
+  manager      Employee?  @relation("EmployeeToEmployee", fields: [reportsTo], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subordinates Employee[] @relation("EmployeeToEmployee")
 
-  customers Customer[]
-
+  @@index([reportsTo])
   @@map("employee")
 }
 
+model Customer {
+  id           Int       @id @default(autoincrement()) @map("customer_id")
+  firstName    String    @map("first_name") @db.VarChar(40)
+  lastName     String    @map("last_name") @db.VarChar(20)
+  company      String?   @db.VarChar(80)
+  address      String?   @db.VarChar(70)
+  city         String?   @db.VarChar(40)
+  state        String?   @db.VarChar(40)
+  country      String?   @db.VarChar(40)
+  postalCode   String?   @map("postal_code") @db.VarChar(10)
+  phone        String?   @db.VarChar(24)
+  fax          String?   @db.VarChar(24)
+  email        String    @db.VarChar(60)
+  supportRepId Int?      @map("support_rep_id")
+  supportRep   Employee? @relation(fields: [supportRepId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invoices     Invoice[]
+
+  @@index([supportRepId])
+  @@map("customer")
+}
+
 model Invoice {
-  id                Int      @id @default(autoincrement()) @map("invoice_id")
-  customerId        Int      @map("customer_id")
-  invoiceDate       DateTime @map("invoice_date")
-  billingAddress    String?  @map("billing_address")
-  billingCity       String?  @map("billing_city")
-  billingState      String?  @map("billing_state")
-  billingCountry    String?  @map("billing_country")
-  billingPostalCode String?  @map("billing_postal_code")
-  total             Float
+  id                Int           @id @default(autoincrement()) @map("invoice_id")
+  customerId        Int           @map("customer_id")
+  invoiceDate       DateTime      @map("invoice_date") @db.Timestamp(6)
+  billingAddress    String?       @map("billing_address") @db.VarChar(70)
+  billingCity       String?       @map("billing_city") @db.VarChar(40)
+  billingState      String?       @map("billing_state") @db.VarChar(40)
+  billingCountry    String?       @map("billing_country") @db.VarChar(40)
+  billingPostalCode String?       @map("billing_postal_code") @db.VarChar(10)
+  total             Decimal       @map("total") @db.Decimal(10, 2)
+  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   invoiceLines      InvoiceLine[]
-  customer          Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([customerId])
+  @@map("invoice")
 }
 
 model InvoiceLine {
   id        Int     @id @default(autoincrement()) @map("invoice_line_id")
   invoiceId Int     @map("invoice_id")
   trackId   Int     @map("track_id")
-  unitPrice Float   @map("unit_price")
+  unitPrice Decimal @map("unit_price") @db.Decimal(10, 2)
   quantity  Int
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  track     Track   @relation(fields: [trackId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  track   Track   @relation(fields: [trackId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
+  @@index([invoiceId])
+  @@index([trackId])
   @@map("invoice_line")
-}
-
-model Customer {
-  id Int @id @default(autoincrement()) @map("customer_id")
-  firstName String @map("first_name")
-  lastName String @map("last_name")
-  company String?
-  address String?
-  city String?
-  state String?
-  country String?
-  postalCode String? @map("postal_code")
-  phone String?
-  fax String?
-  email String
-  supportRepId Int? @map("support_rep_id")
-  supportRep Employee? @relation(fields: [supportRepId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  invoices Invoice[]  
-  @@map("customer")
 }

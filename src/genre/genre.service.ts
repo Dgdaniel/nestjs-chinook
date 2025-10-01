@@ -101,7 +101,10 @@ export class GenreService {
   // prisma
   async createPrisma(genre: CreateGenreDto): Promise<GenrePrisma> {
     return this.prisma.genre.create({
-      data: genre,
+      data: {
+        name: genre.name,
+        id: undefined
+      },
     });
   }
 

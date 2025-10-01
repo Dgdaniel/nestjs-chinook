@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { ALBUM_MODEL, ARTIST_MODEL } from 'src/constants/object.constants';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -88,7 +82,7 @@ export class AlbumService {
                     title: 'asc'
                 },
                 include: {
-                    Artist: true
+                    artist: true
                 }
             });
 
@@ -97,9 +91,8 @@ export class AlbumService {
                 // Utiliser for...of au lieu de forEach pour pouvoir utiliser await
                 for (const el of allArtistMongo) {
                     for (const da of allPrisma) {
-                        if (el.toJSON().name === da.Artist.name) {
-                            this.logger.log("artist name ", da.Artist.name);
-                            this.logger.log({ da });
+                        if (el.toJSON().name === da.artist.name) {
+                            this.logger.log("artist name ", da.artist.name);
 
                             let daniw: CreateAlbumDto = {
                                 'artistId': el.id,

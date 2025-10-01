@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { PrismaService } from './prisma/prisma.service';
 import { AlbumModule } from './album/album.module';
 import { GenreModule } from './genre/genre.module';
+import { MediaTypeModule } from './media-type/media-type.module';
 
 @Module({
     imports: [
@@ -17,7 +18,8 @@ import { GenreModule } from './genre/genre.module';
        ArtistModule,
        DatabaseModule,
        AlbumModule,
-       GenreModule
+       GenreModule,
+       MediaTypeModule
       ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
