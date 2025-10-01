@@ -10,8 +10,9 @@ export const CountrySchema = new Schema({
         default: Date.now,
     },
 },
- {
-  timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
-})
+{
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+}
+)

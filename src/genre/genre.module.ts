@@ -10,8 +10,11 @@ import { DatabaseModule } from '../database/database.module';
     DatabaseModule,
   ],
   controllers: [GenreController],
-  providers: [GenreService,
-  PrismaService,
-    ...genreProvider],
+  providers: [
+    GenreService,
+    PrismaService,
+    ...genreProvider
+  ],
+  exports: [GenreService]
 })
 export class GenreModule {}

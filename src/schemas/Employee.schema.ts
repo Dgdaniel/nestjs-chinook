@@ -69,6 +69,6 @@ export const EmployeeSchema = new Schema({
 });
 
 // Add virtual for full name
-EmployeeSchema.virtual('fullName').get(function() {
+EmployeeSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });

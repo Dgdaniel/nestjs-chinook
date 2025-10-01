@@ -11,7 +11,7 @@ import { CreatePlaylistDto } from './dto/createPlaylist.dto';
 @Injectable()
 export class PlaylistService {
   constructor(@Inject(PLAYLIST_MODEL) private readonly playlistModel: Model<Playlist>,
-              private prisma: PrismaService,) {
+    private prisma: PrismaService,) {
   }
 
   logger = new Logger('PlaylistService');
@@ -80,7 +80,7 @@ export class PlaylistService {
     })
   }
 
-  async deletePrisma(id: number): Promise<{success: boolean, message?: string}> {
+  async deletePrisma(id: number): Promise<{ success: boolean, message?: string }> {
     try {
       await this.prisma.playlist.delete({ where: { id } });
       return { success: true, message: 'Playlist deleted successfully' };

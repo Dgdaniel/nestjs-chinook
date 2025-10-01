@@ -17,5 +17,6 @@ import { albumProvider } from './album.provider';
         PrismaService,
         ...albumProvider
     ],
+    exports: [AlbumService]
 })
 export class AlbumModule {}

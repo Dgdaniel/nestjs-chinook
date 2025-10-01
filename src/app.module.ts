@@ -9,6 +9,7 @@ import { AlbumModule } from './album/album.module';
 import { GenreModule } from './genre/genre.module';
 import { MediaTypeModule } from './media-type/media-type.module';
 import { PlaylistModule } from './playlist/playlist.module';
+import { TrackModule } from './track/track.module';
 
 @Module({
     imports: [
@@ -21,7 +22,8 @@ import { PlaylistModule } from './playlist/playlist.module';
        AlbumModule,
        GenreModule,
        MediaTypeModule,
-       PlaylistModule
+       PlaylistModule,
+       TrackModule
       ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

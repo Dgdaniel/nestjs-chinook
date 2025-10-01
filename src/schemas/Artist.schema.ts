@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 
 export const ArtistSchema = new Schema({
-  name : {
+  name: {
     type: String,
     required: true,
   },

@@ -8,6 +8,11 @@ import { mediaTypeProvider } from './media-type.provider';
 @Module({
   imports: [DatabaseModule],
   controllers: [MediaTypeController],
-  providers: [MediaTypeService, PrismaService, ...mediaTypeProvider],
+  providers: [
+    MediaTypeService,
+    PrismaService,
+    ...mediaTypeProvider
+  ],
+  exports: [MediaTypeService]
 })
 export class MediaTypeModule {}
