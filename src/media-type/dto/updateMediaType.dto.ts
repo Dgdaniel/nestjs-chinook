@@ -1,13 +1,11 @@
 import { Types } from 'mongoose';
 import { z } from 'zod';
-import { CreateAlbumDto } from '../../album/dto/createAlbum.dto';
 
 export const UpdateMediaTypeDtoSchema = z
   .object({
-    id:  z.string()
-      .refine((val) => Types.ObjectId.isValid(val), {
-        message: "Invalid ObjectId format"
-      }),
+    id: z.string().refine((val) => Types.ObjectId.isValid(val), {
+      message: 'Invalid ObjectId format',
+    }),
     name: z
       .string()
       .trim()
@@ -18,4 +16,4 @@ export const UpdateMediaTypeDtoSchema = z
   })
   .required();
 
-export type UpdateMediaTypeDto = z.infer<typeof UpdateMediaTypeDtoSchema>
+export type UpdateMediaTypeDto = z.infer<typeof UpdateMediaTypeDtoSchema>;

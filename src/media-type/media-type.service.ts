@@ -50,7 +50,11 @@ export class MediaTypeService {
 
   async update(data: UpdateMediaTypeDto): Promise<MediaType | null> {
     return this.mediaTypeModel
-      .findByIdAndUpdate({ _id: data.id }, data, { new: true })
+      .findByIdAndUpdate(
+        { _id: data.id },
+        { ...data, $inc: { __v: 1 } },  // Les opérateurs MongoDB vont DANS l'update
+        { new: true }                    // Les options Mongoose sont à part
+      )
       .exec();
   }
 
