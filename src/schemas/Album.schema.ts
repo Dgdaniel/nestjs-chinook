@@ -10,6 +10,7 @@ export const AlbumSchem = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Artist',
         required: true,
+      index: true
     },
     createdAt : {
         type: Date,
@@ -17,6 +18,13 @@ export const AlbumSchem = new mongoose.Schema({
     }
 },
  {
+   query: {
+     byArtistId(artistId) {
+       return this.where({artist:{
+         _id: artistId,
+         }})
+     }
+   },
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
