@@ -4,7 +4,6 @@ import { Album } from '../../album/interface/album.interface';
 import { Genre } from '../../genre/interface/genre.interface';
 import { Playlist } from '../../playlist/interface/playlist.interface';
 
-
 export interface Track extends Document {
   id: string;
   name: string;

@@ -1,25 +1,29 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { TRACK_MODEL } from '../constants/object.constants';
+import {
+  ALBUM_MODEL,
+  GENRE_MODEL,
+  MEDIA_TYPE_MODEL,
+  TRACK_MODEL,
+} from '../constants/object.constants';
 import { Track } from './interface/track.interface';
 import { Model } from 'mongoose';
 import { PrismaService } from '../prisma/prisma.service';
 import { Genre } from '../genre/interface/genre.interface';
 import { Album } from '../album/interface/album.interface';
 import { MediaType } from '../media-type/interface/mediaType.interface';
-import { AlbumSchema } from '../schemas/Album.schema';
 
 @Injectable()
 export class TrackService {
   constructor(
     @Inject(TRACK_MODEL) private readonly trackModel: Model<Track>,
-    private readonly genreModel: Model<Genre>,
-    private readonly albumModel: Model<Album>,
-    private readonly mediaModel: Model<MediaType>,
+    @Inject(GENRE_MODEL) private readonly genreModel: Model<Genre>,
+    @Inject(ALBUM_MODEL) private readonly albumModel: Model<Album>,
+    @Inject(MEDIA_TYPE_MODEL) private readonly mediaModel: Model<MediaType>,
     private prisma: PrismaService,
   ) {}
 
   logger = new Logger('TrackService');
-  async sync(): Promise<{success: boolean, message?: string}> {
+  async sync(): Promise<{ success: boolean; message?: string }> {
     let allTracks = await this.prisma.track.findMany({
       include: {
         genre: true,
@@ -46,7 +50,7 @@ export class TrackService {
         let albumFound = await this.albumModel.findOne({
           where: {
             title: track.album!.title,
-          }
+          },
         });
         if (!albumFound) {
           this.logger.error(`No album found with title ${track.album!.title}`);
@@ -56,36 +60,34 @@ export class TrackService {
         let mediaFound = this.mediaModel.findOne({
           where: {
             name: track.mediaType!.name,
-          }
-        })
+          },
+        });
         if (!mediaFound) {
-          this.logger.error(`No media type found with name ${track!.mediaType!.name}`);
+          this.logger.error(
+            `No media type found with name ${track!.mediaType!.name}`,
+          );
         }
         let created = await this.trackModel.create({
           ...track,
           genre: genreFound,
           mediaType: mediaFound,
-          album: albumFound
-        })
-        this.logger.log({created})
+          album: albumFound,
+        });
+        this.logger.log({ created });
         return {
           success: true,
-          message: ""
-        }
-
+          message: '',
+        };
       }
-      return Promise.resolve( {
+      return Promise.resolve({
         success: true,
-        message: "Synchronisation done Successfully",
-      })
-    }else{
-      return Promise.resolve(
-        {
-          success: false,
-          message: "No track found or something went wrong"
-        }
-      )
+        message: 'Synchronisation done Successfully',
+      });
+    } else {
+      return Promise.resolve({
+        success: false,
+        message: 'No track found or something went wrong',
+      });
     }
-
   }
 }
