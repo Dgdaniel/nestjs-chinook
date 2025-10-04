@@ -145,11 +145,34 @@ export class TrackService {
       .exec();
   }
 
+  async findAllPrisma(): Promise<TrackPrisma[]> {
+    return this.prisma.track.findMany({
+      include: {
+        genre: true,
+        album: true,
+        mediaType: true,
+      }
+    });
+
+  }
+
   async findOne(id: string): Promise<Track | null> {
     return this.trackModel
       .findById(id)
       .populate(['genre', 'album', 'mediaType'])
       .exec();
+  }
+  async findOnePrisma(id: number): Promise<TrackPrisma | null> {
+    return this.prisma.track.findUnique({
+      where: {
+        id
+      },
+      include: {
+        genre: true,
+        album: true,
+        mediaType: true,
+      },
+    });
   }
 
   async create(track: CreateTrackDto): Promise<Track> {

@@ -20,38 +20,73 @@ import * as createTrackPrismaDto from './dto/createTrackPrisma.dto';
 @Controller('track')
 export class TrackController {
   constructor(private trackService: TrackService) {}
+
+  // ========== Routes spécifiques (sans paramètres) ==========
+
   @Post('synchronisation')
   async sync(): Promise<{ success: boolean; message?: string }> {
     return await this.trackService.sync();
   }
 
+  @Get('prisma')
+  async findAllPrisma(): Promise<TrackPrisma[]> {
+    return await this.trackService.findAllPrisma();
+  }
+
+  @Post('prisma')
+  @UsePipes(new ZodValidationPipe(createTrackPrismaDto.CreateTrackPrismaDtoSchema))
+  async createPrisma(
+    @Body() data: createTrackPrismaDto.CreateTrackPrismaDto,
+  ): Promise<TrackPrisma> {
+    return this.trackService.createPrisma(data);
+  }
+
   @Get()
-  async findALl(): Promise<Track[]> {
+  async findAll(): Promise<Track[]> {
     return await this.trackService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param() id: string): Promise<Track | null> {
-    return this.trackService.findOne(id);
+  @Post()
+  @UsePipes(new ZodValidationPipe(createTrackDto.CreateTrackDtoSchema))
+  async create(@Body() data: createTrackDto.CreateTrackDto): Promise<Track> {
+    return this.trackService.create(data);
+  }
+
+  // ========== Routes avec paramètres spécifiques (prisma/:id) ==========
+
+  @Get('prisma/:id')
+  async findOnePrisma(@Param('id') id: number): Promise<TrackPrisma | null> {
+    return await this.trackService.findOnePrisma(+id);
   }
 
   @Put('prisma/:id')
   async updatePrisma(
+    @Param('id') id: string,
     @Body() data: updateTrackPrismaDto.UpdateTrackPrismaDto,
   ): Promise<TrackPrisma> {
-    return this.trackService.updatePrisma(data.id, data);
+    return this.trackService.updatePrisma(+id, data);
+  }
+
+  @Delete('prisma/:id')
+  async deletePrisma(
+    @Param('id') id: string,
+  ): Promise<{ success: boolean; message?: string }> {
+    return await this.trackService.deletePrisma(+id);
+  }
+
+  // ========== Routes génériques avec paramètres (:id) EN DERNIER ==========
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<Track | null> {
+    return this.trackService.findOne(id);
   }
 
   @Put(':id')
-  async update(@Body() data: updateTrackDto.UpdateTrackDto): Promise<Track> {
-    return this.trackService.update(data.id, data);
-  }
-
-  @Get('prisma/:id')
-  async deletePrisma(
-    id: number,
-  ): Promise<{ success: boolean; message?: string }> {
-    return await this.trackService.deletePrisma(id);
+  async update(
+    @Param('id') id: string,
+    @Body() data: updateTrackDto.UpdateTrackDto,
+  ): Promise<Track> {
+    return this.trackService.update(id, data);
   }
 
   @Delete(':id')
@@ -59,19 +94,5 @@ export class TrackController {
     @Param('id') id: string,
   ): Promise<{ success: boolean; message?: string }> {
     return this.trackService.delete(id);
-  }
-
-  @Post("prisma")
-  @UsePipes(new ZodValidationPipe(createTrackPrismaDto.CreateTrackPrismaDtoSchema))
-  async createPrisma(
-    data: createTrackPrismaDto.CreateTrackPrismaDto,
-  ): Promise<TrackPrisma> {
-    return this.trackService.createPrisma(data);
-  }
-
-  @Post()
-  @UsePipes(new ZodValidationPipe(createTrackDto.CreateTrackDtoSchema))
-  async create(data: createTrackDto.CreateTrackDto): Promise<Track> {
-    return this.trackService.create(data);
   }
 }
