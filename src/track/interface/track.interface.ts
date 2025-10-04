@@ -5,7 +5,7 @@ import { Genre } from '../../genre/interface/genre.interface';
 import { Playlist } from '../../playlist/interface/playlist.interface';
 
 export interface Track extends Document {
-  id: string;
+  _id: string;
   name: string;
   composer: string;
   bytes: number;

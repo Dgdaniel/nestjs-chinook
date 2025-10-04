@@ -16,12 +16,11 @@ import { Track as TrackPrisma } from '@prisma/client';
 import * as updateTrackPrismaDto from './dto/updateTrackPrisma.dto';
 import { ZodValidationPipe } from '../pipes/zod-validation/zod-validation-pipe.service';
 import * as createTrackPrismaDto from './dto/createTrackPrisma.dto';
+import { ZodBody } from '../decorators/zod-body/zod-body.decorator';
 
 @Controller('track')
 export class TrackController {
   constructor(private trackService: TrackService) {}
-
-  // ========== Routes spécifiques (sans paramètres) ==========
 
   @Post('synchronisation')
   async sync(): Promise<{ success: boolean; message?: string }> {
@@ -47,12 +46,10 @@ export class TrackController {
   }
 
   @Post()
-  @UsePipes(new ZodValidationPipe(createTrackDto.CreateTrackDtoSchema))
+  @ZodBody(createTrackDto.CreateTrackDtoSchema)
   async create(@Body() data: createTrackDto.CreateTrackDto): Promise<Track> {
     return this.trackService.create(data);
   }
-
-  // ========== Routes avec paramètres spécifiques (prisma/:id) ==========
 
   @Get('prisma/:id')
   async findOnePrisma(@Param('id') id: number): Promise<TrackPrisma | null> {
@@ -73,8 +70,6 @@ export class TrackController {
   ): Promise<{ success: boolean; message?: string }> {
     return await this.trackService.deletePrisma(+id);
   }
-
-  // ========== Routes génériques avec paramètres (:id) EN DERNIER ==========
 
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Track | null> {
