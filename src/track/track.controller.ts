@@ -35,12 +35,43 @@ export class TrackController {
     return this.trackService.findOne(id);
   }
 
-/*  @Put('prisma/:id')
+  @Put('prisma/:id')
   async updatePrisma(
     @Body() data: updateTrackPrismaDto.UpdateTrackPrismaDto,
   ): Promise<TrackPrisma> {
     return this.trackService.updatePrisma(data.id, data);
-  }*/
+  }
 
+  @Put(':id')
+  async update(@Body() data: updateTrackDto.UpdateTrackDto): Promise<Track> {
+    return this.trackService.update(data.id, data);
+  }
 
+  @Get('prisma/:id')
+  async deletePrisma(
+    id: number,
+  ): Promise<{ success: boolean; message?: string }> {
+    return await this.trackService.deletePrisma(id);
+  }
+
+  @Delete(':id')
+  async delete(
+    @Param('id') id: string,
+  ): Promise<{ success: boolean; message?: string }> {
+    return this.trackService.delete(id);
+  }
+
+  @Post("prisma")
+  @UsePipes(new ZodValidationPipe(createTrackPrismaDto.CreateTrackPrismaDtoSchema))
+  async createPrisma(
+    data: createTrackPrismaDto.CreateTrackPrismaDto,
+  ): Promise<TrackPrisma> {
+    return this.trackService.createPrisma(data);
+  }
+
+  @Post()
+  @UsePipes(new ZodValidationPipe(createTrackDto.CreateTrackDtoSchema))
+  async create(data: createTrackDto.CreateTrackDto): Promise<Track> {
+    return this.trackService.create(data);
+  }
 }
