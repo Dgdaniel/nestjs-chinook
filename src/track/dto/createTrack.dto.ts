@@ -1,7 +1,7 @@
 import {z} from "zod";
 import { Types } from 'mongoose';
 
-export const CreatePlaylistDtoSchema =  z
+export const CreateTrackDtoSchema =  z
   .object({
     name: z
       .string()
@@ -34,4 +34,4 @@ export const CreatePlaylistDtoSchema =  z
       }),
   })
   .required();
-export type CreatePlaylistDto = z.infer<typeof CreatePlaylistDtoSchema>
+export type CreateTrackDto = z.infer<typeof CreateTrackDtoSchema>

@@ -1,16 +1,16 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import {
-  ALBUM_MODEL,
-  GENRE_MODEL,
-  MEDIA_TYPE_MODEL,
-  TRACK_MODEL,
-} from '../constants/object.constants';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ALBUM_MODEL, GENRE_MODEL, MEDIA_TYPE_MODEL, TRACK_MODEL, } from '../constants/object.constants';
 import { Track } from './interface/track.interface';
 import { Model } from 'mongoose';
 import { PrismaService } from '../prisma/prisma.service';
 import { Genre } from '../genre/interface/genre.interface';
 import { Album } from '../album/interface/album.interface';
 import { MediaType } from '../media-type/interface/mediaType.interface';
+import { CreateTrackDto } from './dto/createTrack.dto';
+import { UpdateTrackDto } from './dto/updateTrack.dto';
+import { UpdateTrackPrismaDto } from './dto/updateTrackPrisma.dto';
+import { Track as TrackPrisma } from '@prisma/client';
+import { CreateTrackPrismaDto } from './dto/createTrackPrisma.dto';
 
 @Injectable()
 export class TrackService {
@@ -24,70 +24,132 @@ export class TrackService {
 
   logger = new Logger('TrackService');
   async sync(): Promise<{ success: boolean; message?: string }> {
-    let allTracks = await this.prisma.track.findMany({
-      include: {
-        genre: true,
-        album: true,
-        mediaType: true,
-      },
-    });
+    try {
+      // 1. Récupérer tous les tracks de Prisma
+      const allTracks = await this.prisma.track.findMany({
+        include: {
+          genre: true,
+          album: true,
+          mediaType: true,
+        },
+      });
 
-    let alltrackMongo = await this.trackModel.find();
-    if (alltrackMongo.length === 0) {
-      this.logger.error('No track found');
-      for (const track of allTracks) {
-        let genreFound = await this.genreModel.findOne({
-          where: {
-            name: track.genre!.name,
-          },
-        });
+      // 2. Vérifier les tracks existants dans MongoDB
+      const allTracksMongo = await this.trackModel.find().exec();
 
-        if (!genreFound) {
-          this.logger.error(`No genre found with name: ${track.genre!.name}`);
-          continue;
-        }
-
-        let albumFound = await this.albumModel.findOne({
-          where: {
-            title: track.album!.title,
-          },
-        });
-        if (!albumFound) {
-          this.logger.error(`No album found with title ${track.album!.title}`);
-          continue;
-        }
-
-        let mediaFound = this.mediaModel.findOne({
-          where: {
-            name: track.mediaType!.name,
-          },
-        });
-        if (!mediaFound) {
-          this.logger.error(
-            `No media type found with name ${track!.mediaType!.name}`,
-          );
-        }
-        let created = await this.trackModel.create({
-          ...track,
-          genre: genreFound,
-          mediaType: mediaFound,
-          album: albumFound,
-        });
-        this.logger.log({ created });
+      if (allTracksMongo.length > 0) {
         return {
-          success: true,
-          message: '',
+          success: false,
+          message: 'Tracks already synchronized in MongoDB',
         };
       }
-      return Promise.resolve({
+
+      if (allTracks.length === 0) {
+        return {
+          success: false,
+          message: 'No tracks found in Prisma database',
+        };
+      }
+
+      this.logger.log(`Starting sync of ${allTracks.length} tracks`);
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      // 3. Boucler sur tous les tracks
+      for (const track of allTracks) {
+        try {
+          // Vérifier le genre
+          const genreFound = await this.genreModel
+            .findOne({
+              name: track.genre?.name, // Utiliser Mongoose query, pas "where"
+            })
+            .exec();
+
+          if (!genreFound) {
+            this.logger.error(`No genre found with name: ${track.genre?.name}`);
+            errorCount++;
+            continue;
+          }
+
+          // Vérifier l'album
+          const albumFound = await this.albumModel
+            .findOne({
+              title: track.album?.title,
+            })
+            .exec();
+
+          if (!albumFound) {
+            this.logger.error(
+              `No album found with title: ${track.album?.title}`,
+            );
+            errorCount++;
+            continue;
+          }
+
+          // Vérifier le mediaType (ATTENTION: await manquait ici!)
+          const mediaFound = await this.mediaModel
+            .findOne({
+              name: track.mediaType?.name,
+            })
+            .exec();
+
+          if (!mediaFound) {
+            this.logger.error(
+              `No media type found with name: ${track.mediaType?.name}`,
+            );
+            errorCount++;
+            continue;
+          }
+
+          // Créer le track dans MongoDB
+          const created = await this.trackModel.create({
+            name: track.name,
+            composer: track.composer,
+            milliseconds: track.milliseconds,
+            bytes: track.bytes,
+            unitPrice: track.unitPrice,
+            // Référencer les IDs MongoDB, pas les objets entiers
+            genre: genreFound._id,
+            album: albumFound._id,
+            mediaType: mediaFound._id,
+          });
+
+          this.logger.log(`Track created: ${created.name}`);
+          successCount++;
+        } catch (error) {
+          this.logger.error(`Error creating track ${track.name}:`, error);
+          errorCount++;
+        }
+      }
+
+      return {
         success: true,
-        message: 'Synchronisation done Successfully',
-      });
-    } else {
-      return Promise.resolve({
+        message: `Synchronization completed: ${successCount} tracks created, ${errorCount} errors`,
+      };
+    } catch (error) {
+      this.logger.error('Sync failed:', error);
+      return {
         success: false,
-        message: 'No track found or something went wrong',
-      });
+        message: `Synchronization failed: ${error}`,
+      };
     }
   }
+
+  async findAll(): Promise<Track[]> {
+    return this.trackModel
+      .find()
+      .populate('genre')
+      .populate('album')
+      .populate('mediaType')
+      .exec();
+  }
+
+  async findOne(id: string): Promise<Track | null> {
+    return this.trackModel
+      .findById(id)
+      .populate(['genre', 'album', 'mediaType'])
+      .exec();
+  }
+
 }
