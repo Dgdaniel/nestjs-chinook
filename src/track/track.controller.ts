@@ -33,7 +33,7 @@ export class TrackController {
   }
 
   @Post('prisma')
-  @UsePipes(new ZodValidationPipe(createTrackPrismaDto.CreateTrackPrismaDtoSchema))
+  @ZodBody(createTrackPrismaDto.CreateTrackPrismaDtoSchema)
   async createPrisma(
     @Body() data: createTrackPrismaDto.CreateTrackPrismaDto,
   ): Promise<TrackPrisma> {

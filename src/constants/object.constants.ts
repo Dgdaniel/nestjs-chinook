@@ -5,4 +5,5 @@ export const TRACK_MODEL = 'Track';
 export const GENRE_MODEL = 'Genre';
 export const MEDIA_TYPE_MODEL = 'MediaType';
 export const PLAYLIST_MODEL = 'Playlist';
+export const PLAYLIST_TRACK_MODEL = 'PlaylistTrack';
 export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PLAYLIST_MODEL } from '../constants/object.constants';
 import { Model } from 'mongoose';
 import { Playlist } from './interface/playlist.interface';
@@ -49,13 +49,35 @@ export class PlaylistService {
   }
 
   async update(data: updateDto.UpdatePlaylistDto): Promise<Playlist | null> {
-    return this.playlistModel
-      .findByIdAndUpdate(
-        { _id: data.id },
-        { ...data, $inc: { __v: 1 } },
-        { new: true }
-      )
+    const { id, trackId, removeTrackId, ...updateData } = data;
+
+    const updateQuery: any = {};
+
+    // Mise à jour des champs normaux
+    if (Object.keys(updateData).length > 0) {
+      Object.assign(updateQuery, updateData);
+    }
+
+    // Ajouter plusieurs tracks
+    if (trackId && trackId.length > 0) {
+      updateQuery.$addToSet = { tracks: { $each: trackId } };
+    }
+
+    // Retirer plusieurs tracks
+    if (removeTrackId && removeTrackId.length > 0) {
+      updateQuery.$pull = { tracks: { $in: removeTrackId } };
+    }
+
+    const updated = await this.playlistModel
+      .findByIdAndUpdate(id, updateQuery, { new: true, runValidators: true })
+      .populate('tracks')
       .exec();
+
+    if (!updated) {
+      throw new NotFoundException(`Playlist with ID ${id} not found`);
+    }
+
+    return updated;
   }
 
   async delete(id: string): Promise<void> {
@@ -78,6 +100,42 @@ export class PlaylistService {
       },
       data
     })
+  }
+
+  // Ajouter plusieurs tracks
+  async addTracks(playlistId: string, trackIds: string[]): Promise<Playlist> {
+    const updated = await this.playlistModel
+      .findByIdAndUpdate(
+        playlistId,
+        { $addToSet: { tracks: { $each: trackIds } } },
+        { new: true }
+      )
+      .populate('tracks')
+      .exec();
+
+    if (!updated) {
+      throw new NotFoundException(`Playlist with ID ${playlistId} not found`);
+    }
+
+    return updated;
+  }
+
+// Retirer plusieurs tracks
+  async removeTracks(playlistId: string, trackIds: string[]): Promise<Playlist> {
+    const updated = await this.playlistModel
+      .findByIdAndUpdate(
+        playlistId,
+        { $pullAll: { tracks: trackIds } },
+        { new: true }
+      )
+      .populate('tracks')
+      .exec();
+
+    if (!updated) {
+      throw new NotFoundException(`Playlist with ID ${playlistId} not found`);
+    }
+
+    return updated;
   }
 
   async deletePrisma(id: number): Promise<{ success: boolean, message?: string }> {

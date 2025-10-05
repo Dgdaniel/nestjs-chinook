@@ -12,19 +12,19 @@ import { PlaylistModule } from './playlist/playlist.module';
 import { TrackModule } from './track/track.module';
 
 @Module({
-    imports: [
-      ConfigModule.forRoot({
-        isGlobal: true,
-        envFilePath: '.env',
-      }),
-       ArtistModule,
-       DatabaseModule,
-       AlbumModule,
-       GenreModule,
-       MediaTypeModule,
-       PlaylistModule,
-       TrackModule
-      ],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    ArtistModule,
+    DatabaseModule,
+    AlbumModule,
+    GenreModule,
+    MediaTypeModule,
+    PlaylistModule,
+    TrackModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
