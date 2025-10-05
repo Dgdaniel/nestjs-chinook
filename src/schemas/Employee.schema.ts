@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { EMPLOYEE_MODEL } from '../constants/object.constants';
 
 export const EmployeeSchema = new Schema({
   lastName: {
@@ -16,12 +17,12 @@ export const EmployeeSchema = new Schema({
   },
   reportsTo: {
     type: Schema.Types.ObjectId,
-    ref: 'Employee',
+    ref: EMPLOYEE_MODEL,
   },
   employees: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'Employee',
+      ref: EMPLOYEE_MODEL,
     },
   ],
   birthDate: {

@@ -10,6 +10,7 @@ import { GenreModule } from './genre/genre.module';
 import { MediaTypeModule } from './media-type/media-type.module';
 import { PlaylistModule } from './playlist/playlist.module';
 import { TrackModule } from './track/track.module';
+import { EmployeeModule } from './employee/employee.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { TrackModule } from './track/track.module';
     MediaTypeModule,
     PlaylistModule,
     TrackModule,
+    EmployeeModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
