@@ -11,6 +11,7 @@ import { MediaTypeModule } from './media-type/media-type.module';
 import { PlaylistModule } from './playlist/playlist.module';
 import { TrackModule } from './track/track.module';
 import { EmployeeModule } from './employee/employee.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EmployeeModule } from './employee/employee.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    PrismaModule,
     ArtistModule,
     DatabaseModule,
     AlbumModule,
@@ -26,6 +28,7 @@ import { EmployeeModule } from './employee/employee.module';
     PlaylistModule,
     TrackModule,
     EmployeeModule,
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
