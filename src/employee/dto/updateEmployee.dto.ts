@@ -28,6 +28,9 @@ export const createEmployeeSchema = z
       .trim()
       .min(1, { message: 'Email is required' })
       .email({ pattern: z.regexes.rfc5322Email }),
+
+    city: z.string().trim().min(1, { message: 'City is required' }),
+    state: z.string().trim().min(1, { message: 'State is required' }),
   })
   .required();
 
