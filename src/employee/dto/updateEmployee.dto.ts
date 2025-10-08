@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import { z } from 'zod';
 
-export const createEmployeeSchema = z
+export const updateEmployeeSchema = z
   .object({
     id: z.string().trim().refine(
       val => Types.ObjectId.isValid(val),
@@ -11,9 +11,7 @@ export const createEmployeeSchema = z
     lastName: z.string().trim().min(1, { message: 'Last Name is required' }),
     title: z.string().trim().min(1, { message: 'Title is required' }),
     reportsTo: z.string().trim()
-      .optional(),
-    employees:z.string().trim()
-      .optional(),
+      .nullish(),
     hireDate: z.coerce.date({ message: 'Hire date is required' }),
     birthDate: z.coerce.date({ message: 'Birth date is required' }),
     address: z.string().trim().min(1, { message: 'Address is required' }),
@@ -34,4 +32,4 @@ export const createEmployeeSchema = z
   })
   .required();
 
-export type createEmployeeDto = z.infer<typeof createEmployeeSchema>;
+export type UpdateEmployeeDto = z.infer<typeof updateEmployeeSchema>;
