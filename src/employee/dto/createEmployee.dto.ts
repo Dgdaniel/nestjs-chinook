@@ -5,11 +5,9 @@ export const createEmployeeSchema = z
     firstName: z.string().trim().min(1, { message: 'First Name is required' }),
     lastName: z.string().trim().min(1, { message: 'Last Name is required' }),
     title: z.string().trim().min(1, { message: 'Title is required' }),
-    reportsTo: z
-      .array(z.string().trim().min(1, { message: 'ReportsTo is required' }))
+    reportsTo: z.string().trim()
       .optional(),
-    employees: z
-      .array(z.string().trim().min(1, { message: 'Employees is required' }))
+    employees:z.string().trim()
       .optional(),
     hireDate: z.coerce.date({ message: 'Hire date is required' }),
     birthDate: z.coerce.date({ message: 'Birth date is required' }),

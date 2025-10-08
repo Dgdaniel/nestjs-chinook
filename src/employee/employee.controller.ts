@@ -15,4 +15,9 @@ export class EmployeeController {
   async findOne(@Param('id') id: number): Promise<EmployeePrisma | null> {
     return this.employeeService.findOnePrisma(id);
   }
+
+  @Get('sync')
+  async  sync (): Promise<void>{
+    await this.employeeService.sync();
+  }
 }
