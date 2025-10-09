@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put, Delete } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Delete,
+  UseFilters,
+} from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { Employee as EmployeePrisma } from '@prisma/client';
 import { Employee } from './interface/employee.interface';
@@ -6,8 +15,10 @@ import * as createEmployeePrismaDto from './dto/createEmployeePrisma.dto';
 import * as createEmployeeDto from './dto/createEmployee.dto';
 import { ZodBody } from '../decorators/zod-body/zod-body.decorator';
 import  * as updateDto  from './dto/updateEmployee.dto';
+import { AppExceptionFilter } from '../common/filter/appExceptionFilter';
 
 @Controller('employee')
+@UseFilters(AppExceptionFilter)
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
