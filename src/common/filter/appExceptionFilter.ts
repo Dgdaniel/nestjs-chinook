@@ -13,6 +13,7 @@ export class AppExceptionFilter implements ExceptionFilter{
       status,
       timestamp: new Date().toISOString(),
       path: request.path,
+      cause: cause
     })
   }
 }

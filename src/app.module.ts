@@ -13,6 +13,7 @@ import { TrackModule } from './track/track.module';
 import { EmployeeModule } from './employee/employee.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CustomerModule } from './customer/customer.module';
+import { InvoiceModule } from './invoice/invoice.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CustomerModule } from './customer/customer.module';
     EmployeeModule,
     PrismaModule,
     CustomerModule,
+    InvoiceModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
