@@ -8,3 +8,4 @@ export const PLAYLIST_MODEL = 'Playlist';
 export const EMPLOYEE_MODEL = 'employee';
 export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';
 export const CUSTOMER_MODEL = 'Customer';
+export const INVOICE_MODEL = 'Invoice';
