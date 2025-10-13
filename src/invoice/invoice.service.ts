@@ -13,43 +13,102 @@ export class InvoiceService {
 
   }
   logger = new Logger("InvoiceService");
+
   async sync(): Promise<void> {
-    let allMongo = await this.model.find().exec();
-    let countUpdate: number = 0
-    if (allMongo.length === 0) {
-      let allPrisma = await this.prisma.invoice.findMany({
-        include: {
-          customer: true
+    const allMongo = await this.model.find().exec();
+
+    if (allMongo.length > 0) {
+      this.logger.log('Sync skipped: MongoDB already contains data.');
+      return;
+    }
+
+    const allPrisma = await this.prisma.invoice.findMany({
+      include: {
+        customer: true
+      }
+    });
+
+    this.logger.log(`Starting sync of ${allPrisma.length} invoices...`);
+
+    // Optimisation : récupérer tous les customers MongoDB une seule fois
+    const allCustomers = await this.customerModel.find().exec();
+
+    // Créer une Map pour un accès rapide
+    const customerMap = new Map(
+      allCustomers.map(c => [`${c.firstName}_${c.lastName}`, c])
+    );
+
+    let countSuccess: number = 0;
+    let countError: number = 0;
+    const errors: Array<{ invoiceId: any; reason: string }> = [];
+
+    // Traiter par batch pour éviter de surcharger la DB
+    const batchSize = 100;
+    for (let i = 0; i < allPrisma.length; i += batchSize) {
+      const batch = allPrisma.slice(i, i + batchSize);
+
+      const invoicesToCreate = batch
+        .map(data => {
+          const customerKey = `${data.customer.firstName}_${data.customer.lastName}`;
+          const customer = customerMap.get(customerKey);
+
+          if (!customer) {
+            errors.push({
+              invoiceId: data.id,
+              reason: `Customer not found: ${data.customer.firstName} ${data.customer.lastName}`
+            });
+            return null;
+          }
+
+          return {
+            ...data,
+            customer: customer._id,
+            customerId: undefined // Retirer l'ID Prisma si présent
+          };
+        })
+        .filter(Boolean); // Retirer les nulls
+
+      try {
+        if (invoicesToCreate.length > 0) {
+          await this.model.insertMany(invoicesToCreate, { ordered: false });
+          countSuccess += invoicesToCreate.length;
         }
-      })
+      } catch (e) {
+        // insertMany avec ordered: false continue même en cas d'erreur
+        // @ts-ignore
+        if (e.writeErrors) {
+          // @ts-ignore
+          countError += e.writeErrors.length;
+          // @ts-ignore
+          countSuccess += invoicesToCreate.length - e.writeErrors.length;
 
-      for (let data of allPrisma) {
-        let customer = await this.customerModel.findOne(
-          {
-            where: {
-              firstName: data.customer.firstName,
-              lastName: data.customer.lastName
-            }
-          }
-        )
-        if (customer) {
-          try {
-            this.logger.log('customer', { customer });
-            await this.model.create({
-              ...data,
-              customer: customer
-
-            })
-            countUpdate++
-          }catch (e){
-            countUpdate--
-            console.log(e)
-          }
-
+          // @ts-ignore
+          e.writeErrors.forEach((err: { index: string | number; errors: any; }) => {
+            errors.push({
+              invoiceId: invoicesToCreate[err.index]?.id || 'unknown',
+              reason: err.errors
+            });
+          });
+        } else {
+          countError += invoicesToCreate.length;
+          this.logger.error('Batch insert failed:', e);
         }
       }
-
-      this.logger.log(`successfully created ${countUpdate} invoices successfully.`);
     }
+
+    countError += errors.length;
+
+    this.logger.log(
+      `Sync completed: ${countSuccess} invoices created, ${countError} errors.`
+    );
+
+    if (errors.length > 0) {
+      this.logger.warn('Errors details:', errors.slice(0, 10)); // Log les 10 premières erreurs
+    }
+  }
+
+  async findAll(): Promise<Invoice[]> {
+    return this.model.find().populate('customer')
+      .exec();
   }
 }
