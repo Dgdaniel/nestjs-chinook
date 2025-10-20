@@ -1,27 +1,32 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
   Body,
-  Param,
-  Query,
+  Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
-  UsePipes,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseFilters,
+  UseInterceptors,
 } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
 import * as createInvoiceDto_1 from './dto/createInvoice.dto';
 import * as updateInvoiceDto_1 from './dto/updateInvoice.dto';
 import { ZodBody } from '../decorators/zod-body/zod-body.decorator';
+import { AppExceptionFilter } from '../common/filter/appExceptionFilter';
+import { TransformInterceptor } from '../common/interceptors/transform/transform.interceptor';
 
 @Controller('invoice')
+@UseFilters(AppExceptionFilter) // config at class level
+@UseInterceptors(TransformInterceptor)
 export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}
 
   // ==================== SYNC ====================
-
+  // @UseFilters(AppExceptionFilter) or a method level
   @Post('sync')
   @HttpCode(HttpStatus.OK)
   async sync() {
@@ -57,12 +62,12 @@ export class InvoiceController {
   ) {
     // Filtrage par customer
     if (customerId) {
-      const invoices = await this.invoiceService.findByCustomer(customerId);
-      return {
+      return await this.invoiceService.findByCustomer(customerId)
+      /*return {
         message: 'Invoices retrieved successfully',
         data: invoices,
         count: invoices.length,
-      };
+      };*/
     }
 
     // Filtrage par ville
